@@ -15,12 +15,20 @@ buildscript {
 
     dependencies {
       //noinspection GradleDependency
-      classpath("com.android.tools.build:gradle:4.1.0")
+      classpath("com.android.tools.build:gradle:8.10.2")
     }
   }
 }
 
+def isNewArchitectureEnabled() {
+    return project.hasProperty("newArchEnabled") && project.newArchEnabled == "true"
+}
+
 apply plugin: 'com.android.library'
+
+if (isNewArchitectureEnabled()) {
+    apply plugin: 'com.facebook.react'
+}
 
 android {
   def agpVersion = com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION
@@ -35,6 +43,11 @@ android {
     multiDexEnabled true
     minSdkVersion safeExtGet('minSdkVersion', 16)
     targetSdkVersion safeExtGet('targetSdkVersion', 29)
+    
+  }
+
+  buildFeatures {
+    buildConfig true
   }
 
   flavorDimensions "react-native-camera"
