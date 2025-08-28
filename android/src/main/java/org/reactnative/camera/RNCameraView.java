@@ -14,6 +14,7 @@ import android.os.Build;
 import androidx.core.content.ContextCompat;
 
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -21,6 +22,7 @@ import android.view.View;
 import android.os.AsyncTask;
 import com.facebook.react.bridge.*;
 import com.facebook.react.uimanager.ThemedReactContext;
+import com.google.android.cameraview.AspectRatio;
 import com.google.android.cameraview.CameraView;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
@@ -93,13 +95,14 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private int mCameraViewHeight = 0;
 
   public RNCameraView(ThemedReactContext themedReactContext) {
-    super(themedReactContext, true);
+    super(themedReactContext);
     mThemedReactContext = themedReactContext;
     themedReactContext.addLifecycleEventListener(this);
 
     addCallback(new Callback() {
       @Override
       public void onCameraOpened(CameraView cameraView) {
+        Log.i("EasyRoutes", "onCameraOpened");
         RNCameraViewHelper.emitCameraReadyEvent(cameraView);
       }
 
@@ -166,13 +169,17 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
         boolean willCallFaceTask = mShouldDetectFaces && !faceDetectorTaskLock && cameraView instanceof FaceDetectorAsyncTaskDelegate;
         boolean willCallGoogleBarcodeTask = mShouldGoogleDetectBarcodes && !googleBarcodeDetectorTaskLock && cameraView instanceof BarcodeDetectorAsyncTaskDelegate;
         boolean willCallTextTask = mShouldRecognizeText && !textRecognizerTaskLock && cameraView instanceof TextRecognizerAsyncTaskDelegate;
+
         if (!willCallBarCodeTask && !willCallFaceTask && !willCallGoogleBarcodeTask && !willCallTextTask) {
           return;
         }
 
-        if (data.length < (1.5 * width * height)) {
-            return;
-        }
+        Log.i("EasyRoutes", "width=" + width + " height="+height + " rotation=" + rotation + " correctRotation=" + correctRotation);
+
+        // Remove as it was added for reasons I don't understand.
+        // if (data.length < (1.5 * width * height)) {
+        //   return;
+        // }
 
         if (willCallBarCodeTask) {
           barCodeScannerTaskLock = true;
@@ -221,9 +228,14 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     if (null == preview) {
       return;
     }
+    AspectRatio aspectRatio = getAspectRatio();
+    if (aspectRatio == null) {
+      return;
+    }
+
     float width = right - left;
     float height = bottom - top;
-    float ratio = getAspectRatio().toFloat();
+    float ratio = aspectRatio.toFloat();
     int orientation = getResources().getConfiguration().orientation;
     int correctHeight;
     int correctWidth;
@@ -358,6 +370,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   }
 
   public void setShouldScanBarCodes(boolean shouldScanBarCodes) {
+    Log.i("EasyRoutes", "setShouldScanBarCodes(" + shouldScanBarCodes + ")");
     if (shouldScanBarCodes && mMultiFormatReader == null) {
       initBarcodeReader();
     }
@@ -366,6 +379,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   }
 
   public void onBarCodeRead(Result barCode, int width, int height, byte[] imageData) {
+    Log.i("EasyRoutes", "onBarCodeRead: " + barCode.toString());
     String barCodeType = barCode.getBarcodeFormat().toString();
     if (!mShouldScanBarCodes || !mBarCodeTypes.contains(barCodeType)) {
       return;

@@ -7,17 +7,14 @@ import android.graphics.Paint;
 import android.media.CamcorderProfile;
 import android.os.Build;
 import androidx.exifinterface.media.ExifInterface;
+
+import android.util.Log;
 import android.view.ViewGroup;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReadableMap;
-import com.facebook.react.bridge.UIManager;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableArray;
-import com.facebook.react.uimanager.common.UIManagerType;
-import com.facebook.react.uimanager.events.Event;
-import com.facebook.react.uimanager.UIManagerHelper;
-import com.facebook.react.uimanager.UIManagerModule;
 import com.google.android.cameraview.CameraView;
 import com.google.zxing.Result;
 import org.reactnative.camera.events.*;
@@ -174,7 +171,7 @@ public class RNCameraViewHelper {
       @Override
       public void run() {
         CameraMountErrorEvent event = CameraMountErrorEvent.obtain(view.getId(), error);
-        dispatchEventCompat(reactContext, event);
+        reactContext.getFabricUIManager().getEventDispatcher().dispatchEvent(event);
       }
     });
   }
@@ -182,13 +179,14 @@ public class RNCameraViewHelper {
   // Camera ready event
 
   public static void emitCameraReadyEvent(final ViewGroup view) {
+    Log.i("EasyRoutes", "emitCameraReadyEvent");
 
     final ReactContext reactContext = (ReactContext) view.getContext();
     reactContext.runOnNativeModulesQueueThread(new Runnable() {
       @Override
       public void run() {
         CameraReadyEvent event = CameraReadyEvent.obtain(view.getId());
-        dispatchEventCompat(reactContext, event);
+        reactContext.getFabricUIManager().getEventDispatcher().dispatchEvent(event);
       }
     });
   }
@@ -202,7 +200,7 @@ public class RNCameraViewHelper {
       @Override
       public void run() {
         PictureSavedEvent event = PictureSavedEvent.obtain(view.getId(), response);
-        dispatchEventCompat(reactContext, event);
+        reactContext.getFabricUIManager().getEventDispatcher().dispatchEvent(event);
       }
     });
 
@@ -217,7 +215,7 @@ public class RNCameraViewHelper {
       @Override
       public void run() {
         PictureTakenEvent event = PictureTakenEvent.obtain(view.getId());
-        dispatchEventCompat(reactContext, event);
+        reactContext.getFabricUIManager().getEventDispatcher().dispatchEvent(event);
       }
      });
   }
@@ -231,7 +229,7 @@ public class RNCameraViewHelper {
       @Override
       public void run() {
         RecordingStartEvent event = RecordingStartEvent.obtain(view.getId(), response);
-        dispatchEventCompat(reactContext, event);
+        reactContext.getFabricUIManager().getEventDispatcher().dispatchEvent(event);
       }
      });
   }
@@ -243,7 +241,7 @@ public class RNCameraViewHelper {
       @Override
       public void run() {
         RecordingEndEvent event = RecordingEndEvent.obtain(view.getId());
-        dispatchEventCompat(reactContext, event);
+        reactContext.getFabricUIManager().getEventDispatcher().dispatchEvent(event);
       }
      });
   }
@@ -255,7 +253,7 @@ public class RNCameraViewHelper {
       @Override
       public void run() {
         TouchEvent event = TouchEvent.obtain(view.getId(), isDoubleTap, x, y);
-        dispatchEventCompat(reactContext, event);
+        reactContext.getFabricUIManager().getEventDispatcher().dispatchEvent(event);
       }
     });
 
@@ -269,7 +267,7 @@ public class RNCameraViewHelper {
       @Override
       public void run() {
         FacesDetectedEvent event = FacesDetectedEvent.obtain(view.getId(), data);
-        dispatchEventCompat(reactContext, event);
+        reactContext.getFabricUIManager().getEventDispatcher().dispatchEvent(event);
       }
      });
   }
@@ -281,7 +279,7 @@ public class RNCameraViewHelper {
       @Override
       public void run() {
         FaceDetectionErrorEvent event = FaceDetectionErrorEvent.obtain(view.getId(), faceDetector);
-        dispatchEventCompat(reactContext, event);
+        reactContext.getFabricUIManager().getEventDispatcher().dispatchEvent(event);
       }
     });
   }
@@ -295,7 +293,7 @@ public class RNCameraViewHelper {
       @Override
       public void run() {
         BarcodesDetectedEvent event = BarcodesDetectedEvent.obtain(view.getId(), barcodes, compressedImage);
-        dispatchEventCompat(reactContext, event);
+        reactContext.getFabricUIManager().getEventDispatcher().dispatchEvent(event);
       }
     });
   }
@@ -307,7 +305,7 @@ public class RNCameraViewHelper {
       @Override
       public void run() {
         BarcodeDetectionErrorEvent event = BarcodeDetectionErrorEvent.obtain(view.getId(), barcodeDetector);
-        dispatchEventCompat(reactContext, event);
+        reactContext.getFabricUIManager().getEventDispatcher().dispatchEvent(event);
       }
     });
   }
@@ -320,7 +318,7 @@ public class RNCameraViewHelper {
       @Override
       public void run() {
         BarCodeReadEvent event = BarCodeReadEvent.obtain(view.getId(), barCode, width,  height, compressedImage);
-        dispatchEventCompat(reactContext, event);
+        reactContext.getFabricUIManager().getEventDispatcher().dispatchEvent(event);
       }
     });
   }
@@ -333,7 +331,7 @@ public class RNCameraViewHelper {
       @Override
       public void run() {
         TextRecognizedEvent event = TextRecognizedEvent.obtain(view.getId(), data);
-        dispatchEventCompat(reactContext, event);
+        reactContext.getFabricUIManager().getEventDispatcher().dispatchEvent(event);
       }
     });
   }
@@ -474,15 +472,5 @@ public class RNCameraViewHelper {
     canvas.drawText(simpleDateFormat.format(calendar.getTime()), width * 0.4f, height * 0.8f, textPaint);
 
     return fakePhoto;
-  }
-
-  // https://github.com/reactwg/react-native-new-architecture/discussions/201
-  private static void dispatchEventCompat(final ReactContext reactContext, final Event<?> event) {
-    if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
-      UIManager uiManager = UIManagerHelper.getUIManager(reactContext, UIManagerType.FABRIC);
-      uiManager.getEventDispatcher().dispatchEvent(event);
-    } else {
-      reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
-    }
   }
 }
