@@ -194,11 +194,12 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
                     ByteBuffer buffer = planes[0].getBuffer();
                     byte[] data = new byte[buffer.remaining()];
                     buffer.get(data);
+                    Log.i("EasyRoutes", "image.getFormat()=" + image.getFormat() + " planes.length=" + planes.length + " " + image.getWidth() + "x" + image.getHeight() + " pixelStride=" + planes[0].getPixelStride() + " rowStride=" + planes[0].getRowStride());
                     if (image.getFormat() == ImageFormat.JPEG) {
                         // @TODO: implement deviceOrientation
                         mCallback.onPictureTaken(data, 0, 0);
                     } else {
-                        mCallback.onFramePreview(data, image.getWidth(), image.getHeight(), mDisplayOrientation);
+                        mCallback.onFramePreview(data, image.getWidth(), image.getHeight(), planes[0].getRowStride(), mDisplayOrientation);
                     }
                     image.close();
                 }

@@ -13,6 +13,7 @@ public class BarCodeScannerAsyncTask extends android.os.AsyncTask<Void, Void, Re
   private byte[] mImageData;
   private int mWidth;
   private int mHeight;
+  private int mStride;
   private BarCodeScannerAsyncTaskDelegate mDelegate;
   private final MultiFormatReader mMultiFormatReader;
   private boolean mLimitScanArea;
@@ -31,6 +32,7 @@ public class BarCodeScannerAsyncTask extends android.os.AsyncTask<Void, Void, Re
       byte[] imageData,
       int width,
       int height,
+      int stride,
       boolean limitScanArea,
       float scanAreaX,
       float scanAreaY,
@@ -43,6 +45,7 @@ public class BarCodeScannerAsyncTask extends android.os.AsyncTask<Void, Void, Re
     mImageData = imageData;
     mWidth = width;
     mHeight = height;
+    mStride = stride;
     mDelegate = delegate;
     mMultiFormatReader = multiFormatReader;
     mLimitScanArea = limitScanArea;
@@ -80,6 +83,7 @@ public class BarCodeScannerAsyncTask extends android.os.AsyncTask<Void, Void, Re
                 mImageData,
                 mWidth,
                 mHeight,
+                mStride,
                 false,
                 left,
                 top,
@@ -93,9 +97,10 @@ public class BarCodeScannerAsyncTask extends android.os.AsyncTask<Void, Void, Re
 
       try {
         BinaryBitmap bitmap = generateBitmapFromImageData(
-                rotateImage(mImageData,mWidth, mHeight),
+                rotateImage(mImageData,mWidth, mHeight, mStride),
                 mHeight,
                 mWidth,
+                mHeight,
                 false,
                 mHeight - scanHeight - top,
                 left,
@@ -112,6 +117,7 @@ public class BarCodeScannerAsyncTask extends android.os.AsyncTask<Void, Void, Re
                 mImageData,
                 mWidth,
                 mHeight,
+                mStride,
                 true,
                 mWidth - scanWidth - left,
                 mHeight - scanHeight - top,
@@ -125,9 +131,10 @@ public class BarCodeScannerAsyncTask extends android.os.AsyncTask<Void, Void, Re
 
       try {
         BinaryBitmap invertedRotatedBitmap = generateBitmapFromImageData(
-                rotateImage(mImageData,mWidth, mHeight),
+                rotateImage(mImageData,mWidth, mHeight, mStride),
                 mHeight,
                 mWidth,
+                mHeight,
                 true,
                 top,
                 mWidth - scanWidth - left,
@@ -148,14 +155,28 @@ public class BarCodeScannerAsyncTask extends android.os.AsyncTask<Void, Void, Re
     return null;
   }
 
-  private byte[] rotateImage(byte[]imageData,int width, int height) {
-    byte[] rotated = new byte[imageData.length];
+  private static byte[] rotateImage(byte[]imageData,int width, int height, int stride) {
+    int newWidth = height;
+    int newHeight = width;
+    byte[] newImageData = new byte[newWidth * newHeight];
+
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
-        rotated[x * height + height - y - 1] = imageData[x + y * width];
+        // Calculate the index for the original image with stride
+        int oldIndex = y * stride + x;
+
+        // Calculate new coordinates for counter-clockwise rotation
+        int newX = y;
+        int newY = (width - 1) - x;
+
+        // Calculate the index for the new image (no stride needed for the output)
+        int newIndex = newY * newWidth + newX;
+
+        // Transfer the pixel
+        newImageData[newIndex] = imageData[oldIndex];
       }
     }
-    return rotated;
+    return newImageData;
   }
 
   @Override
@@ -167,12 +188,12 @@ public class BarCodeScannerAsyncTask extends android.os.AsyncTask<Void, Void, Re
     mDelegate.onBarCodeScanningTaskCompleted();
   }
 
-  private BinaryBitmap generateBitmapFromImageData(byte[] imageData, int width, int height, boolean inverse, int left, int top, int sWidth, int sHeight) {
+  private BinaryBitmap generateBitmapFromImageData(byte[] imageData, int width, int height, int stride, boolean inverse, int left, int top, int sWidth, int sHeight) {
     PlanarYUVLuminanceSource source;
     if (mLimitScanArea) {
       source = new PlanarYUVLuminanceSource(
         imageData, // byte[] yuvData
-        width, // int dataWidth
+        stride, // int dataWidth
         height, // int dataHeight
         left, // int left
         top, // int top
@@ -183,7 +204,7 @@ public class BarCodeScannerAsyncTask extends android.os.AsyncTask<Void, Void, Re
     } else {
       source = new PlanarYUVLuminanceSource(
         imageData, // byte[] yuvData
-        width, // int dataWidth
+        stride, // int dataWidth
         height, // int dataHeight
         0, // int left
         0, // int top

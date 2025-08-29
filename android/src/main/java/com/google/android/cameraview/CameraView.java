@@ -683,9 +683,9 @@ public class CameraView extends FrameLayout {
         }
 
         @Override
-        public void onFramePreview(byte[] data, int width, int height, int orientation) {
+        public void onFramePreview(byte[] data, int width, int height, int stride, int orientation) {
             for (Callback callback : mCallbacks) {
-                callback.onFramePreview(CameraView.this, data, width, height, orientation);
+                callback.onFramePreview(CameraView.this, data, width, height, stride, orientation);
             }
         }
 
@@ -840,7 +840,7 @@ public class CameraView extends FrameLayout {
          */
         public void onVideoRecorded(CameraView cameraView, String path, int videoOrientation, int deviceOrientation) {}
 
-        public void onFramePreview(CameraView cameraView, byte[] data, int width, int height, int orientation) {}
+        public void onFramePreview(CameraView cameraView, byte[] data, int width, int height, int stride, int orientation) {}
 
         public void onMountError(CameraView cameraView) {}
     }
