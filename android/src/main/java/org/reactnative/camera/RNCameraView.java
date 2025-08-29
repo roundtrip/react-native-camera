@@ -172,11 +172,6 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
           return;
         }
 
-        // Remove as it was added for reasons I don't understand.
-        // if (data.length < (1.5 * width * height)) {
-        //   return;
-        // }
-
         if (willCallBarCodeTask) {
           barCodeScannerTaskLock = true;
           BarCodeScannerAsyncTaskDelegate delegate = (BarCodeScannerAsyncTaskDelegate) cameraView;
