@@ -15,19 +15,16 @@ buildscript {
 
     dependencies {
       //noinspection GradleDependency
-      classpath("com.android.tools.build:gradle:4.1.0")
+      classpath("com.android.tools.build:gradle:8.10.2")
     }
   }
 }
 
 apply plugin: 'com.android.library'
+apply plugin: 'com.facebook.react'
 
 android {
-  def agpVersion = com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION
-  if (agpVersion.tokenize('.')[0].toInteger() >= 7) {
-      namespace "org.reactnative.camera"
-  }
-
+  namespace "org.reactnative.camera"
   compileSdkVersion safeExtGet('compileSdkVersion', 29)
   buildToolsVersion safeExtGet('buildToolsVersion', '29.0.2')
 
@@ -35,6 +32,10 @@ android {
     multiDexEnabled true
     minSdkVersion safeExtGet('minSdkVersion', 16)
     targetSdkVersion safeExtGet('targetSdkVersion', 29)
+  }
+
+  buildFeatures {
+    buildConfig true
   }
 
   flavorDimensions "react-native-camera"

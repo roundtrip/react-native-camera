@@ -22,7 +22,6 @@ import android.graphics.ImageFormat;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.os.Handler;
 
-
 @TargetApi(23)
 class Camera2Api23 extends Camera2 {
 

@@ -165,7 +165,7 @@ abstract class CameraViewImpl {
 
         void onRecordingEnd();
 
-        void onFramePreview(byte[] data, int width, int height, int orientation);
+        void onFramePreview(byte[] data, int width, int height, int stride, int orientation);
 
         void onMountError();
     }

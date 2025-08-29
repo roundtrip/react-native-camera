@@ -197,7 +197,7 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
                         // @TODO: implement deviceOrientation
                         mCallback.onPictureTaken(data, 0, 0);
                     } else {
-                        mCallback.onFramePreview(data, image.getWidth(), image.getHeight(), mDisplayOrientation);
+                        mCallback.onFramePreview(data, image.getWidth(), image.getHeight(), planes[0].getRowStride(), mDisplayOrientation);
                     }
                     image.close();
                 }
@@ -276,6 +276,7 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
 
     Camera2(Callback callback, PreviewImpl preview, Context context, Handler bgHandler) {
         super(callback, preview, bgHandler);
+
         mCameraManager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
         mCameraManager.registerAvailabilityCallback(new CameraManager.AvailabilityCallback() {
             @Override
@@ -765,33 +766,6 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
         //mPreview.setDisplayOrientation(deviceOrientation); // this is not needed and messes up the display orientation
     }
 
-
-    // This is a helper method to query Camera2 legacy status so we don't need
-    // to instantiate and set all its props in order to check if it is legacy or not
-    // and then fallback to Camera1. This way, legacy devices can fall back to Camera1 right away
-    // This method makes sure all cameras are not legacy, so further checks are not needed.
-    public static boolean isLegacy(Context context){
-        try{
-            CameraManager manager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
-            String[] ids = manager.getCameraIdList();
-            for (String id : ids) {
-                CameraCharacteristics characteristics = manager.getCameraCharacteristics(id);
-                Integer level = characteristics.get(
-                        CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
-                if (level == null ||
-                        level == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY) {
-                    Log.w(TAG, "Camera2 can only run in legacy mode and should not be used.");
-                    return true;
-                }
-            }
-            return false;
-        }
-        catch(CameraAccessException ex){
-            Log.e(TAG, "Failed to check camera legacy status, returning true.", ex);
-            return true;
-        }
-    }
-
     /**
      * <p>Chooses a camera ID by the specified camera facing ({@link #mFacing}).</p>
      * <p>This rewrites {@link #mCameraId}, {@link #mCameraCharacteristics}, and optionally
@@ -898,7 +872,13 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
         if (mPictureSize == null) {
             mPictureSize = mPictureSizes.sizes(mAspectRatio).last();
         }
-        for (AspectRatio ratio : mPreviewSizes.ratios()) {
+
+        // Create a copy of the ratios as we modify the set during iteration.
+        Set<AspectRatio> ratioSet = mPreviewSizes.ratios();
+        AspectRatio[] ratios = new AspectRatio[ratioSet.size()];
+        ratioSet.toArray(ratios);
+
+        for (AspectRatio ratio : ratios) {
             if (!mPictureSizes.ratios().contains(ratio)) {
                 mPreviewSizes.remove(ratio);
             }
