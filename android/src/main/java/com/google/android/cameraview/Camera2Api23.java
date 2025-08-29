@@ -21,15 +21,12 @@ import android.content.Context;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.os.Handler;
-import android.util.Log;
-
 
 @TargetApi(23)
 class Camera2Api23 extends Camera2 {
 
     Camera2Api23(Callback callback, PreviewImpl preview, Context context, Handler bgHandler) {
         super(callback, preview, context, bgHandler);
-        Log.i("EasyRoutes", "Camera2Api23");
     }
 
     @Override

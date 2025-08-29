@@ -1,7 +1,5 @@
 package org.reactnative.camera.tasks;
 
-import android.util.Log;
-
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.MultiFormatReader;
 import com.google.zxing.NotFoundException;
@@ -90,7 +88,6 @@ public class BarCodeScannerAsyncTask extends android.os.AsyncTask<Void, Void, Re
                 scanWidth,
                 scanHeight
         );
-        Log.i("EasyRoutes", "decodeWithState");
         return mMultiFormatReader.decodeWithState(bitmap);
       } catch (NotFoundException e) {
       }
@@ -107,7 +104,6 @@ public class BarCodeScannerAsyncTask extends android.os.AsyncTask<Void, Void, Re
                 scanHeight,
                 scanWidth
         );
-        Log.i("EasyRoutes", "decodeWithState rotate");
         return mMultiFormatReader.decodeWithState(bitmap);
       } catch (NotFoundException e) {
       }
@@ -124,7 +120,6 @@ public class BarCodeScannerAsyncTask extends android.os.AsyncTask<Void, Void, Re
                 scanWidth,
                 scanHeight
         );
-        Log.i("EasyRoutes", "decodeWithState inverse");
         return mMultiFormatReader.decodeWithState(invertedBitmap);
       } catch (NotFoundException e) {
       }
@@ -141,15 +136,12 @@ public class BarCodeScannerAsyncTask extends android.os.AsyncTask<Void, Void, Re
                 scanHeight,
                 scanWidth
         );
-        Log.i("EasyRoutes", "decodeWithState inverse rotate");
         return mMultiFormatReader.decodeWithState(invertedRotatedBitmap);
       } catch (NotFoundException e) {
       }
     } catch (Throwable t) {
       t.printStackTrace();
     }
-
-    Log.i("EasyRoutes", "decodeWithState nothing");
 
     // no barcode found
     return null;

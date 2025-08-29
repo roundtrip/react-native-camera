@@ -179,8 +179,6 @@ public class RNCameraViewHelper {
   // Camera ready event
 
   public static void emitCameraReadyEvent(final ViewGroup view) {
-    Log.i("EasyRoutes", "emitCameraReadyEvent");
-
     final ReactContext reactContext = (ReactContext) view.getContext();
     reactContext.runOnNativeModulesQueueThread(new Runnable() {
       @Override

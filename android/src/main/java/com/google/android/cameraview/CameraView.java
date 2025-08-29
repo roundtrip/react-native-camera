@@ -18,8 +18,6 @@ package com.google.android.cameraview;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Rect;
-import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.os.Build;
 import android.os.HandlerThread;
@@ -33,8 +31,6 @@ import androidx.core.os.ParcelableCompat;
 import androidx.core.os.ParcelableCompatCreatorCallbacks;
 import androidx.core.view.ViewCompat;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.graphics.SurfaceTexture;
@@ -48,7 +44,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.SortedSet;
-
 public class CameraView extends FrameLayout {
 
     /** The camera device faces the opposite direction as the device's screen. */
@@ -636,8 +631,6 @@ public class CameraView extends FrameLayout {
 
         @Override
         public void onCameraOpened() {
-            Log.i("EasyRoutes", "onCameraOpened");
-
             if (mRequestLayoutOnOpen) {
                 mRequestLayoutOnOpen = false;
                 requestLayout();

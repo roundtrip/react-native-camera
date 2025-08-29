@@ -14,7 +14,6 @@ import android.os.Build;
 import androidx.core.content.ContextCompat;
 
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -102,7 +101,6 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     addCallback(new Callback() {
       @Override
       public void onCameraOpened(CameraView cameraView) {
-        Log.i("EasyRoutes", "onCameraOpened");
         RNCameraViewHelper.emitCameraReadyEvent(cameraView);
       }
 
@@ -173,8 +171,6 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
         if (!willCallBarCodeTask && !willCallFaceTask && !willCallGoogleBarcodeTask && !willCallTextTask) {
           return;
         }
-
-        Log.i("EasyRoutes", "width=" + width + " height="+height + " rotation=" + rotation + " correctRotation=" + correctRotation);
 
         // Remove as it was added for reasons I don't understand.
         // if (data.length < (1.5 * width * height)) {
@@ -370,7 +366,6 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   }
 
   public void setShouldScanBarCodes(boolean shouldScanBarCodes) {
-    Log.i("EasyRoutes", "setShouldScanBarCodes(" + shouldScanBarCodes + ")");
     if (shouldScanBarCodes && mMultiFormatReader == null) {
       initBarcodeReader();
     }
@@ -379,7 +374,6 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   }
 
   public void onBarCodeRead(Result barCode, int width, int height, byte[] imageData) {
-    Log.i("EasyRoutes", "onBarCodeRead: " + barCode.toString());
     String barCodeType = barCode.getBarcodeFormat().toString();
     if (!mShouldScanBarCodes || !mBarCodeTypes.contains(barCodeType)) {
       return;
