@@ -188,6 +188,9 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
         @Override
         public void onImageAvailable(ImageReader reader) {
             try (Image image = reader.acquireNextImage()) {
+                if (image == null) {
+                    return;
+                }
                 Image.Plane[] planes = image.getPlanes();
                 if (planes.length > 0) {
                     ByteBuffer buffer = planes[0].getBuffer();
@@ -199,7 +202,6 @@ class Camera2 extends CameraViewImpl implements MediaRecorder.OnInfoListener, Me
                     } else {
                         mCallback.onFramePreview(data, image.getWidth(), image.getHeight(), planes[0].getRowStride(), mDisplayOrientation);
                     }
-                    image.close();
                 }
             }
         }
